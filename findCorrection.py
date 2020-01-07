@@ -37,16 +37,16 @@ class findCorrection:
             print(n,m)
             for i in range(n):
                 for j in range(m):
-                    if j in [prediction, output]:
-                        epsilon_var = network.epsilons[i][j]
-                        network.setUpperBound(epsilon_var, epsilon)
-                        network.setLowerBound(epsilon_var, -epsilon)
-                        abs_epsilon_var = self.epsilonABS(network, epsilon_var)
-                        abs_epsilons.append(abs_epsilon_var)
-                    else:
-                        epsilon_var = network.epsilons[i][j]
-                        network.setUpperBound(epsilon_var, 0)
-                        network.setLowerBound(epsilon_var, 0)
+                    # if j in [prediction, output]:
+                    epsilon_var = network.epsilons[i][j]
+                    network.setUpperBound(epsilon_var, epsilon)
+                    network.setLowerBound(epsilon_var, -epsilon)
+                    abs_epsilon_var = self.epsilonABS(network, epsilon_var)
+                    abs_epsilons.append(abs_epsilon_var)
+                    # else:
+                    #     epsilon_var = network.epsilons[i][j]
+                    #     network.setUpperBound(epsilon_var, 0)
+                    #     network.setLowerBound(epsilon_var, 0)
 
         e = MarabouUtils.Equation(EquationType=MarabouUtils.MarabouCore.Equation.LE)
         for i in range(len(abs_epsilons)):
