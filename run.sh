@@ -8,5 +8,5 @@
 
 export PYTHONPATH=$PYTHONPATH:"$(dirname "$(pwd)")"/Marabou
 
-python3 SATExample.py
+python3 SATexample.py
 
