@@ -53,7 +53,7 @@ options = Marabou.createOptions(dnc=True, verbosity=0, initialDivides=2)
 vals1, stats1 = net1.solve(options=options)
 
 
-out_file = open('./input1.csv', 'w')
+out_file = open('./input1_corrected.csv', 'w')
 out_file.write('{},{},{},{},{}\n'.format(vals1[inputVars[0]],
                                          vals1[inputVars[1]],
                                          vals1[inputVars[2]],
@@ -61,7 +61,7 @@ out_file.write('{},{},{},{},{}\n'.format(vals1[inputVars[0]],
                                          vals1[inputVars[4]]))
 out_file.close()
 
-out_file = open('./output1.csv', 'w')
+out_file = open('./output1_corrected.csv', 'w')
 out_file.write('{},{},{},{},{}\n'.format(vals1[outputVars[0]],
                                          vals1[outputVars[1]],
                                          vals1[outputVars[2]],
