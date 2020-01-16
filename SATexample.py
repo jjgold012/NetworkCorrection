@@ -4,22 +4,25 @@ import numpy as np
 from maraboupy import MarabouUtils
 from maraboupy import Marabou
 
-file_name = "./ProtobufNetworks/ACASXU_2_9.pb"
-nnet_file_name = "../Marabou/resources/nnet/acasxu/ACASXU_experimental_v2a_2_9.nnet"
+file_name = "./ProtobufNetworks/ACASXU_2_9.0.corrected.pb"
+# nnet_file_name = "../Marabou/resources/nnet/acasxu/ACASXU_experimental_v2a_2_9.nnet"
 
 net1 = Marabou.read_tf(file_name)
-net2 = Marabou.read_nnet(nnet_file_name)
+# net2 = Marabou.read_nnet(nnet_file_name)
 
-s = 0
-for i in range(1000):
-    a = 2*np.random.random_sample((1,5))-1
-    print(a)
-    b = net1.evaluate(a)
-    c = net2.evaluate(a)
-    print(b-c)
-    s = s + np.linalg.norm(b-c, 1)
-# 0.0001767427448647568
-print(s)
+# s = 0
+# for i in range(1000):
+#     a = 2*np.random.random_sample((1,5))-1
+#     print(a)
+#     b = net1.evaluate(a)
+#     c = net2.evaluate(a)
+#     print(b-c)
+#     s = s + np.linalg.norm(b-c, 1)
+# # 0.0001767427448647568
+# print(s)
+
+
+
 # Bounds for input 0: [ -0.3284228772, 0.6798577687 ]
 # Bounds for input 1: [ -0.5000000551, 0.5000000551 ]
 # Bounds for input 2: [ -0.5000000551, 0.5000000551 ]
