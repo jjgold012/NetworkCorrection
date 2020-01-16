@@ -14,9 +14,10 @@ sat = 'SAT'
 unsat = 'UNSAT'
 class findCorrection:
 
-    def __init__(self, epsilon_max, epsilon_interval):
+    def __init__(self, epsilon_max, epsilon_interval, correct_diff):
         self.epsilon_max = epsilon_max
         self.epsilon_interval = epsilon_interval
+        self.correct_diff = correct_diff
 
     def epsilonABS(self, network, epsilon_var):
         epsilon2 = network.getNewVariable()
@@ -29,43 +30,34 @@ class findCorrection:
         MarabouUtils.addEquality(network, [abs_epsilon, relu_epsilon2, epsilon_var], [1, -1, 1], 0)
         return abs_epsilon
 
-    def evaluateEpsilon(self, epsilon, network, prediction):
-        outputVars = network.outputVars[0]
-        abs_epsilons = list()
-        for k in network.matMulLayers.keys():
-            n, m = network.matMulLayers[k]['vals'].shape
-            print(n,m)
-            for i in range(n):
-                for j in range(m):
-                    # if j in [prediction, output]:
-                    epsilon_var = network.epsilons[i][j]
-                    network.setUpperBound(epsilon_var, epsilon)
-                    network.setLowerBound(epsilon_var, -epsilon)
-                    abs_epsilon_var = self.epsilonABS(network, epsilon_var)
-                    abs_epsilons.append(abs_epsilon_var)
-                    # else:
-                    #     epsilon_var = network.epsilons[i][j]
-                    #     network.setUpperBound(epsilon_var, 0)
-                    #     network.setLowerBound(epsilon_var, 0)
+    def evaluateEpsilon(self, epsilon, network):
+        for outputNum in [0, 1]:
+            outputVars = network.outputVars[0]
+            abs_epsilons = list()
+            for k in network.matMulLayers.keys():
+                n, m = network.matMulLayers[k]['vals'].shape
+                print(n,m)
+                for i in range(n):
+                    for j in range(m):
+                        epsilon_var = network.epsilons[i][j]
+                        network.setUpperBound(epsilon_var, epsilon)
+                        network.setLowerBound(epsilon_var, -epsilon)
+                        abs_epsilon_var = self.epsilonABS(network, epsilon_var)
+                        abs_epsilons.append(abs_epsilon_var)
+                        
+            e = MarabouUtils.Equation(EquationType=MarabouUtils.MarabouCore.Equation.LE)
+            for i in range(len(abs_epsilons)):
+                e.addAddend(1, abs_epsilons[i])
+            e.setScalar(epsilon)
+            network.addEquation(e)
 
-        e = MarabouUtils.Equation(EquationType=MarabouUtils.MarabouCore.Equation.LE)
-        for i in range(len(abs_epsilons)):
-            e.addAddend(1, abs_epsilons[i])
-        e.setScalar(epsilon)
-        network.addEquation(e)
-
-        MarabouUtils.addInequality(network, [outputVars[2], outputVars[0]], [1, -1], 0)
-        MarabouUtils.addInequality(network, [outputVars[3], outputVars[0]], [1, -1], 0)
-        MarabouUtils.addInequality(network, [outputVars[4], outputVars[0]], [1, -1], 0)
-        MarabouUtils.addInequality(network, [outputVars[2], outputVars[1]], [1, -1], 0)
-        MarabouUtils.addInequality(network, [outputVars[3], outputVars[1]], [1, -1], 0)
-        MarabouUtils.addInequality(network, [outputVars[4], outputVars[1]], [1, -1], 0)
-        vals = network.solve(verbose=True)
-        if vals[0]:
-
-            return sat, vals
-        else:
-            return unsat, vals
+            MarabouUtils.addInequality(network, [outputVars[outputNum], outputVars[2]], [1, -1], self.correct_diff)
+            MarabouUtils.addInequality(network, [outputVars[outputNum], outputVars[3]], [1, -1], self.correct_diff)
+            MarabouUtils.addInequality(network, [outputVars[outputNum], outputVars[4]], [1, -1], self.correct_diff)
+            vals = network.solve(verbose=True)
+            if vals[0]:
+                return sat, vals
+        return unsat, vals
     
     # def getNetworkSolution(self, network):
     #     equations = network.equList
@@ -108,13 +100,13 @@ class findCorrection:
     #     newOutput = np.array([[results[2][outputVars[i][j]] for j in range(outputVars.shape[1])] for i in range(outputVars.shape[0])])
     #     return results, predIndices[:,0], predIndices[:,1], newOutput
     
-    def findEpsilonInterval(self, network, prediction):
+    def findEpsilonInterval(self, network):
         sat_epsilon = self.epsilon_max
         unsat_epsilon = 0.0
         sat_vals = None
         epsilon = sat_epsilon
         while abs(sat_epsilon - unsat_epsilon) > self.epsilon_interval:
-            status, vals = self.evaluateEpsilon(epsilon, deepcopy(network), prediction)
+            status, vals = self.evaluateEpsilon(epsilon, deepcopy(network))
             if status == sat:
                 sat_epsilon = epsilon
                 sat_vals = (status, vals)
@@ -124,45 +116,53 @@ class findCorrection:
         return unsat_epsilon, sat_epsilon , sat_vals
 
 
-    def run(self, model_name, model_dir):
+    def run(self, model_name, input_num):
         filename = './ProtobufNetworks/last.layer.{}.pb'.format(model_name)
         
-        lastlayer_inputs = np.load('./{}.lastlayer.input.npy'.format(model_name))
-        predictions = np.load('./{}.prediction.npy'.format(model_name))
-        prediction = np.argmax(predictions)
-        print('Prediction:')
-        print(prediction)
+        lastlayer_inputs = np.load('./{}.{}.lastlayer.input.npy'.format(model_name, input_num))
+        
         # inputVals = np.reshape(lastlayer_inputs, (1, lastlayer_inputs.shape[0]))
         network = MarabouNetworkTFWeightsAsVar.read_tf_weights_as_var(filename=filename, inputVals=lastlayer_inputs)
         
-        unsat_epsilon, sat_epsilon, sat_vals = self.findEpsilonInterval(network, prediction)
-        print('{},{}\n'.format(unsat_epsilon, sat_epsilon))
-    
-        all_vals = sat_vals[1][0]
+        unsat_epsilon, sat_epsilon, sat_vals = self.findEpsilonInterval(network)
+        predictions = np.load('./{}.{}.prediction.npy'.format(model_name, input_num))
+        prediction = np.argmin(predictions)
 
+        outFile = open('{}_{}.txt'.format(model_name, input_num), 'w')
+        print('Prediction vector:', file=outFile)
+        print(predictions, file=outFile)
+        print('\nPrediction vector min:', file=outFile)
+        print(prediction, file=outFile)
+        print('\n(unsat_epsilon, sat_epsilon)', file=outFile)
+        print('({},{})'.format(unsat_epsilon, sat_epsilon), file=outFile)
+        all_vals = sat_vals[1][0]
         output_vars = network.outputVars[0]
         output_vals = np.array([all_vals[output_vars[i]] for i in range(len(output_vars))])    
-        print('Output vector:')
-        print(output_vals)
-        print('Output vector min:')
-        print(np.argmin(output_vals))
+        print('\nOutput vector:', file=outFile)
+        print(output_vals, file=outFile)
+        print('\nOutput vector min:', file=outFile)
+        print(np.argmin(output_vals), file=outFile)
 
         epsilons_vars = network.matMulLayers[0]['epsilons']
         epsilons_vals = np.array([[all_vals[epsilons_vars[j][i]] for i in range(epsilons_vars.shape[1])] for j in range(epsilons_vars.shape[0])])    
-        np.save('./{}.vals'.format(model_name), epsilons_vals)
+        np.save('./{}.{}.vals'.format(model_name, input_num), epsilons_vals)
 
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--model', help='the name of the model')
+    parser.add_argument('--input_num', default=0, help='the input to correct')
+    parser.add_argument('--correct_diff', default=0.001, help='the input to correct')
     parser.add_argument('--epsilon_max', default=5, help='max epsilon value')
-    parser.add_argument('--epsilon_interval', default=0.001, help='epsilon smallest change')
+    parser.add_argument('--epsilon_interval', default=0.0001, help='epsilon smallest change')
     
     args = parser.parse_args()
     epsilon_max = float(args.epsilon_max)
     epsilon_interval = float(args.epsilon_interval)  
+    correct_diff = - float(args.correct_diff)  
     
     model_name = args.model
+    input_num = args.input_num
     MODELS_PATH = './Models'
-    problem = findCorrection(epsilon_max, epsilon_interval)
-    problem.run(model_name)
+    problem = findCorrection(epsilon_max, epsilon_interval, correct_diff)
+    problem.run(model_name, input_num)

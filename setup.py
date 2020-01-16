@@ -11,7 +11,7 @@ from WatermarkVerification import utils
 
 nnet_file_name = "../Marabou/resources/nnet/acasxu/ACASXU_experimental_v2a_2_9.nnet"
 model_name = 'ACASXU_2_9'
-inputNum = 0
+inputNum = 1
 datafile = open('./input{}.csv'.format(inputNum))
 sat_in = np.array([float(x) for x in next(datafile).split(',')]).reshape(1,5)
 datafile.close()
