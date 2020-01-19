@@ -14,16 +14,16 @@ file_name = "./ProtobufNetworks/ACASXU_2_9.pb"
 
 model_name = 'ACASXU_2_9'
 
-datafile = open('./input0.csv')
+datafile = open('./data/input0.csv')
 sat_in = np.array([float(x) for x in next(datafile).split(',')]).reshape(1,5)
 datafile.close()
-datafile = open('./output0.csv')
+datafile = open('./data/output0.csv')
 sat_out = np.array([float(x) for x in next(datafile).split(',')])
 datafile.close()
-datafile = open('./input1.csv')
+datafile = open('./data/input1.csv')
 sat_in1 = np.array([float(x) for x in next(datafile).split(',')]).reshape(1,5)
 datafile.close()
-datafile = open('./output1.csv')
+datafile = open('./data/output1.csv')
 sat_out1 = np.array([float(x) for x in next(datafile).split(',')])
 datafile.close()
 

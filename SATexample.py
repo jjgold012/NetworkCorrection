@@ -3,8 +3,14 @@ import warnings
 import numpy as np
 from maraboupy import MarabouUtils
 from maraboupy import Marabou
+import argparse
 
-file_name = "./ProtobufNetworks/ACASXU_2_9.0.corrected.pb"
+parser = argparse.ArgumentParser()
+parser.add_argument('--model', default='ACASXU_2_9', help='the name of the model')
+args = parser.parse_args()
+
+model_name = args.model
+file_name = './ProtobufNetworks/{}.pb'.format(model_name)
 # nnet_file_name = "../Marabou/resources/nnet/acasxu/ACASXU_experimental_v2a_2_9.nnet"
 
 net1 = Marabou.read_tf(file_name)
@@ -50,22 +56,22 @@ MarabouUtils.addInequality(net1, [outputVars[3], outputVars[2]], [1, -1], 0)
 MarabouUtils.addInequality(net1, [outputVars[3], outputVars[4]], [1, -1], 0)
 
 options = Marabou.createOptions(dnc=True, verbosity=0, initialDivides=2)
-vals1, stats1 = net1.solve(options=options)
+vals, stats = net1.solve(options=options)
 
+if vals:
+    out_file = open('./data/{}_input.csv'.format(model_name), 'w')
+    out_file.write('{},{},{},{},{}\n'.format(vals[inputVars[0]],
+                                            vals[inputVars[1]],
+                                            vals[inputVars[2]],
+                                            vals[inputVars[3]],
+                                            vals[inputVars[4]]))
+    out_file.close()
 
-out_file = open('./input1_corrected.csv', 'w')
-out_file.write('{},{},{},{},{}\n'.format(vals1[inputVars[0]],
-                                         vals1[inputVars[1]],
-                                         vals1[inputVars[2]],
-                                         vals1[inputVars[3]],
-                                         vals1[inputVars[4]]))
-out_file.close()
-
-out_file = open('./output1_corrected.csv', 'w')
-out_file.write('{},{},{},{},{}\n'.format(vals1[outputVars[0]],
-                                         vals1[outputVars[1]],
-                                         vals1[outputVars[2]],
-                                         vals1[outputVars[3]],
-                                         vals1[outputVars[4]]))
-out_file.close()
+    out_file = open('./data/{}_output.csv'.format(model_name), 'w')
+    out_file.write('{},{},{},{},{}\n'.format(vals[outputVars[0]],
+                                            vals[outputVars[1]],
+                                            vals[outputVars[2]],
+                                            vals[outputVars[3]],
+                                            vals[outputVars[4]]))
+    out_file.close()
 

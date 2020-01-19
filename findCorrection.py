@@ -119,16 +119,16 @@ class findCorrection:
     def run(self, model_name, input_num):
         filename = './ProtobufNetworks/last.layer.{}.pb'.format(model_name)
         
-        lastlayer_inputs = np.load('./{}.{}.lastlayer.input.npy'.format(model_name, input_num))
+        lastlayer_inputs = np.load('./data/{}.{}.lastlayer.input.npy'.format(model_name, input_num))
         
         # inputVals = np.reshape(lastlayer_inputs, (1, lastlayer_inputs.shape[0]))
         network = MarabouNetworkTFWeightsAsVar.read_tf_weights_as_var(filename=filename, inputVals=lastlayer_inputs)
         
         unsat_epsilon, sat_epsilon, sat_vals = self.findEpsilonInterval(network)
-        predictions = np.load('./{}.{}.prediction.npy'.format(model_name, input_num))
+        predictions = np.load('./data/{}.{}.prediction.npy'.format(model_name, input_num))
         prediction = np.argmin(predictions)
 
-        outFile = open('{}_{}.txt'.format(model_name, input_num), 'w')
+        outFile = open('./data/{}_{}.txt'.format(model_name, input_num), 'w')
         print('Prediction vector:', file=outFile)
         print(predictions, file=outFile)
         print('\nPrediction vector min:', file=outFile)
@@ -145,7 +145,7 @@ class findCorrection:
 
         epsilons_vars = network.matMulLayers[0]['epsilons']
         epsilons_vals = np.array([[all_vals[epsilons_vars[j][i]] for i in range(epsilons_vars.shape[1])] for j in range(epsilons_vars.shape[0])])    
-        np.save('./{}.{}.vals'.format(model_name, input_num), epsilons_vals)
+        np.save('./data/{}.{}.vals'.format(model_name, input_num), epsilons_vals)
 
 if __name__ == '__main__':
 
