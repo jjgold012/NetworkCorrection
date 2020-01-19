@@ -10,7 +10,7 @@ from WatermarkVerification import utils
 
 model_name = 'ACASXU_2_9'
 model = utils.load_model('./Models/{}.json'.format(model_name), './Models/{}.h5'.format(model_name))
-model.compile(optimizer=tf.train.AdamOptimizer(),loss='sparse_categorical_crossentropy',metrics=['accuracy'])
+# model.compile(optimizer=tf.train.AdamOptimizer(),loss='sparse_categorical_crossentropy',metrics=['accuracy'])
 
 nnet_file_name = "../Marabou/resources/nnet/acasxu/ACASXU_experimental_v2a_2_9.nnet"
 
