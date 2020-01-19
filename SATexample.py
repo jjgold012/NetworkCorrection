@@ -59,6 +59,7 @@ options = Marabou.createOptions(dnc=True, verbosity=0, initialDivides=2)
 vals, stats = net1.solve(options=options)
 
 if vals:
+    print('SAT')
     out_file = open('./data/{}_input.csv'.format(model_name), 'w')
     out_file.write('{},{},{},{},{}\n'.format(vals[inputVars[0]],
                                             vals[inputVars[1]],
@@ -74,4 +75,6 @@ if vals:
                                             vals[outputVars[3]],
                                             vals[outputVars[4]]))
     out_file.close()
+else:
+    print('UNSAT')
 
