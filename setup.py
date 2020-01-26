@@ -11,13 +11,6 @@ from WatermarkVerification import utils
 
 nnet_file_name = "../Marabou/resources/nnet/acasxu/ACASXU_experimental_v2a_2_9.nnet"
 model_name = 'ACASXU_2_9'
-inputNum = 1
-datafile = open('./input{}.csv'.format(inputNum))
-sat_in = np.array([float(x) for x in next(datafile).split(',')]).reshape(1,5)
-datafile.close()
-datafile = open('./output{}.csv'.format(inputNum))
-sat_out = np.array([float(x) for x in next(datafile).split(',')])
-datafile.close()
 
 net1 = Marabou.read_nnet(nnet_file_name)
 weights = [np.transpose(np.array([np.array(j) for j in i])) for i in net1.weights]
@@ -47,12 +40,20 @@ utils.saveModelAsProtobuf(model, model_name)
 sub_model, last_layer = utils.splitModel(model)
 utils.saveModelAsProtobuf(last_layer, 'last.layer.{}'.format(model_name))
 
+
+datafile = open('./data/inputs.csv')
+sat_in = np.array([[float(x) for x in line.split(',')] for line in datafile])
+datafile.close()
+datafile = open('./data/outputs.csv')
+sat_out = np.array([[float(x) for x in line.split(',')] for line in datafile])
+datafile.close()
+
 prediction = model.predict(sat_in)
 lastlayer_input = sub_model.predict(sat_in)
 print(model.predict(np.zeros((1,5))))
 print(prediction)
-np.save('./data/{}.{}.prediction'.format(model_name, inputNum), prediction)    
-np.save('./data/{}.{}.lastlayer.input'.format(model_name, inputNum), lastlayer_input)    
+np.save('./data/{}.prediction'.format(model_name), prediction)    
+np.save('./data/{}.lastlayer.input'.format(model_name), lastlayer_input)    
 
 print(last_layer.predict(lastlayer_input)-sat_out)
 print(lastlayer_input.shape)
