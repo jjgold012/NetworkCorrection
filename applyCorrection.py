@@ -5,9 +5,9 @@ import tensorflow as tf
 import uuid
 from WatermarkVerification import utils
 
-model_name = 'ACASXU_2_9'
+model_name = 'ACASXU_2_9_2'
 epsilon = np.load('./data/{}.vals.npy'.format(model_name))
-model = utils.load_model('./Models/{}.json'.format(model_name), './Models/{}.h5'.format(model_name))
+model = utils.load_model('./Models/{}.json'.format('ACASXU_2_9'), './Models/{}.h5'.format('ACASXU_2_9'))
 weights = model.get_weights()
 weights[-2] = weights[-2] + epsilon
 
