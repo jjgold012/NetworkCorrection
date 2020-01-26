@@ -17,21 +17,15 @@ nnet_file_name = "../Marabou/resources/nnet/acasxu/ACASXU_experimental_v2a_2_9.n
 net1 = Marabou.read_nnet(nnet_file_name)
 
 
-x_0 = np.random.uniform(low=-0.3284228772, high=0.6798577687, size=(100000,1))
-x_1_4 = np.random.uniform(low=-0.5, high=0.5, size=(100000,4))
+x_0 = np.random.uniform(low=-0.3284228772, high=0.6798577687, size=(10000,1))
+x_1_4 = np.random.uniform(low=-0.5, high=0.5, size=(10000,4))
 x = np.append(x_0, x_1_4, axis=1)
 print(x.shape)
 print(np.min(x, axis=0))
 print(np.max(x, axis=0))
-a = model.predict(x)
-b = np.array([net1.evaluate(x[i].reshape(1,5)) for i in range(x.shape[0])])
-print(a.shape)
-print(b.shape)
-
-y_1 = np.argmin(a, axis=0)
-y_2 = np.argmin(b, axis=0)
-
+prediction = model.predict(x)
+y = np.argmin(prediction, axis=1)
 np.save('./data/dataset_x', x) 
-np.savetxt('./data/dataset_y_1', y_1)  
-np.savetxt('./data/dataset_y_2', y_2)  
+np.savetxt('./data/dataset_y.txt', y)  
+
 
