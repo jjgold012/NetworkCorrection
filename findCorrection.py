@@ -121,19 +121,24 @@ class findCorrection:
         return unsat_epsilon, sat_epsilon , sat_vals
 
 
-    def run(self, model_name):
+    def run(self, model_name, num):
         filename = './ProtobufNetworks/last.layer.{}.pb'.format(model_name)
-        
-        lastlayer_inputs = np.load('./data/{}.lastlayer.input.npy'.format(model_name))
-        
-        # inputVals = np.reshape(lastlayer_inputs, (1, lastlayer_inputs.shape[0]))
+        orig_model_name = 'ACASXU_2_9'
+        lastlayer_inputs = np.load('./data/{}.lastlayer.input.npy'.format(orig_model_name))
+        if num >= 0:
+            lastlayer_inputs = np.reshape(lastlayer_inputs[num], (1, lastlayer_inputs.shape[1]))
         network = MarabouNetworkTFWeightsAsVar2.read_tf_weights_as_var(filename=filename, inputVals=lastlayer_inputs)
         
         unsat_epsilon, sat_epsilon, sat_vals = self.findEpsilonInterval(network)
         predictions = np.load('./data/{}.prediction.npy'.format(model_name))
         prediction = np.argmin(predictions, axis=1)
+        if num >= 0:
+            predictions = predictions[num]
+            prediction = np.argmin(predictions, axis=0)
+        
+        num = num if num >= 0 else 'all'
 
-        outFile = open('./data/{}.txt'.format(model_name), 'w')
+        outFile = open('./data/{}_{}.txt'.format(model_name, num), 'w')
         print('Prediction vector:', file=outFile)
         print(predictions, file=outFile)
         print('\nPrediction vector min:', file=outFile)
@@ -150,12 +155,13 @@ class findCorrection:
 
         epsilons_vars = network.epsilons
         epsilons_vals = np.array([[all_vals[epsilons_vars[j][i]] for i in range(epsilons_vars.shape[1])] for j in range(epsilons_vars.shape[0])])    
-        np.save('./data/{}.vals'.format(model_name), epsilons_vals)
+        np.save('./data/{}_{}.vals'.format(model_name, num), epsilons_vals)
 
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--model', help='the name of the model')
+    parser.add_argument('--input_num', default=-1, help='the name of the model')
     parser.add_argument('--correct_diff', default=0.001, help='the input to correct')
     parser.add_argument('--epsilon_max', default=5, help='max epsilon value')
     parser.add_argument('--epsilon_interval', default=0.0001, help='epsilon smallest change')
@@ -164,8 +170,9 @@ if __name__ == '__main__':
     epsilon_max = float(args.epsilon_max)
     epsilon_interval = float(args.epsilon_interval)  
     correct_diff = - float(args.correct_diff)  
-    
+    input_num = int(args.input_num)  
+
     model_name = args.model
     MODELS_PATH = './Models'
     problem = findCorrection(epsilon_max, epsilon_interval, correct_diff)
-    problem.run(model_name)
+    problem.run(model_name, input_num)
