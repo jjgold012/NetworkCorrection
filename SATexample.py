@@ -55,12 +55,12 @@ MarabouUtils.addInequality(net1, [outputVars[3], outputVars[1]], [1, -1], 0)
 MarabouUtils.addInequality(net1, [outputVars[3], outputVars[2]], [1, -1], 0)
 MarabouUtils.addInequality(net1, [outputVars[3], outputVars[4]], [1, -1], 0)
 
-options = Marabou.createOptions(dnc=True, verbosity=0, initialDivides=2)
+options = Marabou.createOptions(dnc=False, verbosity=0, initialDivides=2)
 vals, stats = net1.solve(options=options)
 
 if vals:
     print('SAT')
-    out_file = open('./data/{}_input.csv'.format(model_name), 'w')
+    out_file = open('./data/{}_input_no_dnc.csv'.format(model_name), 'w')
     out_file.write('{},{},{},{},{}\n'.format(vals[inputVars[0]],
                                             vals[inputVars[1]],
                                             vals[inputVars[2]],
@@ -68,7 +68,7 @@ if vals:
                                             vals[inputVars[4]]))
     out_file.close()
 
-    out_file = open('./data/{}_output.csv'.format(model_name), 'w')
+    out_file = open('./data/{}_output_no_dnc.csv'.format(model_name), 'w')
     out_file.write('{},{},{},{},{}\n'.format(vals[outputVars[0]],
                                             vals[outputVars[1]],
                                             vals[outputVars[2]],
