@@ -81,38 +81,39 @@ class findCorrection:
         return abs_epsilon
 
     def evaluateEpsilon(self, epsilon, network):
-        for outputNum in [0, 1]:
-            outputVars = network.outputVars
-            abs_epsilons = list()
-            n, m = network.epsilons.shape
-            print(n,m)
-            for i in range(n):
-                for j in range(m):
-                    epsilon_var = network.epsilons[i][j]
-                    network.setUpperBound(epsilon_var, epsilon)
-                    network.setLowerBound(epsilon_var, -epsilon)
-                    abs_epsilon_var = self.epsilonABS(network, epsilon_var)
-                    abs_epsilons.append(abs_epsilon_var)
-                        
-            e = MarabouUtils.Equation(EquationType=MarabouUtils.MarabouCore.Equation.LE)
-            for i in range(len(abs_epsilons)):
-                e.addAddend(1, abs_epsilons[i])
-            e.setScalar(epsilon)
-            network.addEquation(e)
-            for i in range(outputVars.shape[0]):
-                # MarabouUtils.addInequality(network, [outputVars[i][0], outputVars[i][2]], [1, -1], self.correct_diff)
-                # MarabouUtils.addInequality(network, [outputVars[i][0], outputVars[i][3]], [1, -1], self.correct_diff)
-                # MarabouUtils.addInequality(network, [outputVars[i][0], outputVars[i][4]], [1, -1], self.correct_diff)
-                # MarabouUtils.addInequality(network, [outputVars[i][1], outputVars[i][2]], [1, -1], self.correct_diff)
-                # MarabouUtils.addInequality(network, [outputVars[i][1], outputVars[i][3]], [1, -1], self.correct_diff)
-                # MarabouUtils.addInequality(network, [outputVars[i][1], outputVars[i][4]], [1, -1], self.correct_diff)
-                MarabouUtils.addInequality(network, [outputVars[i][outputNum], outputVars[i][2]], [1, -1], self.correct_diff)
-                MarabouUtils.addInequality(network, [outputVars[i][outputNum], outputVars[i][3]], [1, -1], self.correct_diff)
-                MarabouUtils.addInequality(network, [outputVars[i][outputNum], outputVars[i][4]], [1, -1], self.correct_diff)
-            vals = network.solve(verbose=True)
-            if vals[0]:
-                return sat, vals
-        return unsat, vals
+        # for outputNum in [0, 1]:
+        outputVars = network.outputVars
+        abs_epsilons = list()
+        n, m = network.epsilons.shape
+        print(n,m)
+        for i in range(n):
+            for j in range(m):
+                epsilon_var = network.epsilons[i][j]
+                network.setUpperBound(epsilon_var, epsilon)
+                network.setLowerBound(epsilon_var, -epsilon)
+                abs_epsilon_var = self.epsilonABS(network, epsilon_var)
+                abs_epsilons.append(abs_epsilon_var)
+                    
+        e = MarabouUtils.Equation(EquationType=MarabouUtils.MarabouCore.Equation.LE)
+        for i in range(len(abs_epsilons)):
+            e.addAddend(1, abs_epsilons[i])
+        e.setScalar(epsilon)
+        network.addEquation(e)
+        for i in range(outputVars.shape[0]):
+            MarabouUtils.addInequality(network, [outputVars[i][0], outputVars[i][2]], [1, -1], self.correct_diff)
+            MarabouUtils.addInequality(network, [outputVars[i][0], outputVars[i][3]], [1, -1], self.correct_diff)
+            MarabouUtils.addInequality(network, [outputVars[i][0], outputVars[i][4]], [1, -1], self.correct_diff)
+            MarabouUtils.addInequality(network, [outputVars[i][1], outputVars[i][2]], [1, -1], self.correct_diff)
+            MarabouUtils.addInequality(network, [outputVars[i][1], outputVars[i][3]], [1, -1], self.correct_diff)
+            MarabouUtils.addInequality(network, [outputVars[i][1], outputVars[i][4]], [1, -1], self.correct_diff)
+            # MarabouUtils.addInequality(network, [outputVars[i][outputNum], outputVars[i][2]], [1, -1], self.correct_diff)
+            # MarabouUtils.addInequality(network, [outputVars[i][outputNum], outputVars[i][3]], [1, -1], self.correct_diff)
+            # MarabouUtils.addInequality(network, [outputVars[i][outputNum], outputVars[i][4]], [1, -1], self.correct_diff)
+        vals = network.solve(verbose=True)
+        if vals[0]:
+            return sat, vals
+        else:
+            return unsat, vals
     
     def findEpsilonInterval(self, network):
         sat_epsilon = self.epsilon_max
@@ -146,7 +147,7 @@ class findCorrection:
         
         num = num if num >= 0 else 'all'
         
-        outFile = open('./data/{}_{}_lp.txt'.format(model_name, num), 'w') if self.lp else open('./data/{}_{}.txt'.format(model_name, num))
+        outFile = open('./data/{}_{}_lp.txt'.format(model_name, num), 'w') if self.lp else open('./data/{}_{}.txt'.format(model_name, num), 'w')
         print('Prediction vector:', file=outFile)
         print(predictions, file=outFile)
         print('\nPrediction vector min:', file=outFile)
@@ -171,9 +172,9 @@ class findCorrection:
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model', help='the name of the model')
+    parser.add_argument('--model', default='ACASXU_2_9', help='the name of the model')
     parser.add_argument('--input_num', default=-1, help='the name of the model')
-    parser.add_argument('--correct_diff', default=0.001, help='the input to correct')
+    parser.add_argument('--correct_diff', default=0.01, help='the input to correct')
     parser.add_argument('--epsilon_max', default=5, help='max epsilon value')
     parser.add_argument('--epsilon_interval', default=0.0001, help='epsilon smallest change')
     parser.add_argument('--lp', action='store_true', help='solve lp')

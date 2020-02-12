@@ -36,8 +36,8 @@ net1 = Marabou.read_tf(file_name)
 # Bounds for input 4: [ -0.5000000000, 0.5000000000 ]
 inputVars = net1.inputVars[0][0]
 # print(inputVars.shape)
-net1.setLowerBound(inputVars[0], -0.3284228772)
-net1.setUpperBound(inputVars[0], 0.6798577687)
+net1.setLowerBound(inputVars[0], -0.3)
+net1.setUpperBound(inputVars[0], 0.55)
 net1.setLowerBound(inputVars[1], -0.2)
 net1.setUpperBound(inputVars[1], 0.5)
 net1.setLowerBound(inputVars[2], -0.1)
