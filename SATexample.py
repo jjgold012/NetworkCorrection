@@ -46,6 +46,16 @@ net1.setLowerBound(inputVars[3], -0.0)
 net1.setUpperBound(inputVars[3], 0.38)
 net1.setLowerBound(inputVars[4], -0.1)
 net1.setUpperBound(inputVars[4], 0.5)
+# net1.setLowerBound(inputVars[0], -0.3284228772)
+# net1.setUpperBound(inputVars[0], 0.6798577687)
+# net1.setLowerBound(inputVars[1], -0.5)
+# net1.setUpperBound(inputVars[1], 0.5)
+# net1.setLowerBound(inputVars[2], -0.5)
+# net1.setUpperBound(inputVars[2], 0.5)
+# net1.setLowerBound(inputVars[3], -0.5)
+# net1.setUpperBound(inputVars[3], 0.5)
+# net1.setLowerBound(inputVars[4], -0.5)
+# net1.setUpperBound(inputVars[4], 0.5)
 
 # property: output 3 is minimal
 outputVars = net1.outputVars[0]
