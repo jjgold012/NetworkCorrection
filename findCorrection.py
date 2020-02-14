@@ -165,9 +165,9 @@ class findCorrection:
         epsilons_vals = np.array([[sat_vals[epsilons_vars[j][i]] for i in range(epsilons_vars.shape[1])] for j in range(epsilons_vars.shape[0])])    
         
         if self.lp:
-            np.save('./data/{}_{}_lp.vals'.format(model_name, num), epsilons_vals)
+            np.save('./data/{}_{}3_lp.vals'.format(model_name, num), epsilons_vals)
         else:
-            np.save('./data/{}_{}.vals'.format(model_name, num), epsilons_vals)
+            np.save('./data/{}_{}3.vals'.format(model_name, num), epsilons_vals)
 
 if __name__ == '__main__':
 
