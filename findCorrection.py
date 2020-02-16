@@ -136,18 +136,18 @@ class findCorrection:
         orig_model_name = 'ACASXU_2_9'
         lastlayer_inputs = np.load('./data/{}.lastlayer.input.npy'.format(orig_model_name))
         if num >= 0:
-            lastlayer_inputs = np.reshape(lastlayer_inputs[num], (1, lastlayer_inputs.shape[1]))
+            lastlayer_inputs = lastlayer_inputs[:num]
         network = MarabouNetworkTFWeightsAsVar2.read_tf_weights_as_var(filename=filename, inputVals=lastlayer_inputs)
         unsat_epsilon, sat_epsilon, sat_vals = self.findEpsilon(network) if self.lp else self.findEpsilonInterval(network)
         predictions = np.load('./data/{}.prediction.npy'.format(model_name))
         prediction = np.argmin(predictions, axis=1)
         if num >= 0:
-            predictions = predictions[num]
+            predictions = predictions[:num]
             prediction = np.argmin(predictions, axis=0)
         
         num = num if num >= 0 else 'all'
         
-        outFile = open('./data/{}_{}_lp.txt'.format(model_name, num), 'w') if self.lp else open('./data/{}_{}.txt'.format(model_name, num), 'w')
+        outFile = open('./data/{}_0to{}_lp.txt'.format(model_name, num-1), 'w') if self.lp else open('./data/{}_{}.txt'.format(model_name, num), 'w')
         print('Prediction vector:', file=outFile)
         print(predictions, file=outFile)
         print('\nPrediction vector min:', file=outFile)
@@ -165,9 +165,9 @@ class findCorrection:
         epsilons_vals = np.array([[sat_vals[epsilons_vars[j][i]] for i in range(epsilons_vars.shape[1])] for j in range(epsilons_vars.shape[0])])    
         
         if self.lp:
-            np.save('./data/{}_{}3_lp.vals'.format(model_name, num), epsilons_vals)
+            np.save('./data/{}_0to{}3_lp.vals'.format(model_name, num-1), epsilons_vals)
         else:
-            np.save('./data/{}_{}3.vals'.format(model_name, num), epsilons_vals)
+            np.save('./data/{}_0to{}3.vals'.format(model_name, num-1), epsilons_vals)
 
 if __name__ == '__main__':
 
