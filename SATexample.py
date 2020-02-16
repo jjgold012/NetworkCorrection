@@ -86,5 +86,5 @@ if vals:
                                             vals[outputVars[4]]))
     out_file.close()
 else:
-    print('UNSAT')
+    print('{} UNSAT'.format(model_name))
 
