@@ -167,16 +167,16 @@ class findCorrection:
         if self.lp:
             np.save('./data/{}_0to{}3_lp.vals'.format(model_name, num-1), epsilons_vals)
         else:
-            np.save('./data/{}_0to{}3.vals'.format(model_name, num-1), epsilons_vals)
+            np.save('./data/{}_0to{}4.vals'.format(model_name, num-1), epsilons_vals)
 
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--model', default='ACASXU_2_9', help='the name of the model')
     parser.add_argument('--input_num', default=-1, help='the name of the model')
-    parser.add_argument('--correct_diff', default=0.01, help='the input to correct')
+    parser.add_argument('--correct_diff', default=0.001, help='the input to correct')
     parser.add_argument('--epsilon_max', default=5, help='max epsilon value')
-    parser.add_argument('--epsilon_interval', default=0.001, help='epsilon smallest change')
+    parser.add_argument('--epsilon_interval', default=0.0001, help='epsilon smallest change')
     parser.add_argument('--lp', action='store_true', help='solve lp')
     
     args = parser.parse_args()
